@@ -4,7 +4,7 @@ binary search tree, where each node represents a K-dimensional point. Every non-
 hyperplane, dividing the space into two partitions. This hyperplane is perpendicular to the chosen axis, which
 is associated with one of the K dimensions. A normal Binary Search Tree is also a K-D Tree with K=1. Thus
 we can say, that K-D Trees are a direct extension of the binary search tree.
-#Objective
+# Objective
 •To implement the K-D tree data structure.
 •To perform nearest neighbour search in O(logn) time.
 •To demonstrate this nearest neighbor search’s practical application.
