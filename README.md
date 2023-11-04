@@ -6,6 +6,8 @@ is associated with one of the K dimensions. A normal Binary Search Tree is also 
 we can say, that K-D Trees are a direct extension of the binary search tree.
 # Objective
 •To implement the K-D tree data structure.
+
 •To perform nearest neighbour search in O(logn) time.
+
 •To demonstrate this nearest neighbor search’s practical application.
 
