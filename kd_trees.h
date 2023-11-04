@@ -1,6 +1,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include<limits.h>
+#include <math.h>
+#include <float.h>
 int k ;
 typedef struct Node
 {
@@ -38,19 +41,111 @@ node* insert_node(node* root, int* point, int depth)
     }
     return root;
 }
+typedef struct point {
+    int* data;
+} point;
+
+// Function to calculate the Euclidean distance between two points
+double euclideanDistance(int* point1, int* point2) {
+    double distance = 0;
+    for (int i = 0; i < k; i++) {
+        double diff = point1[i] - point2[i];
+        distance += diff * diff;
+    }
+    return sqrt(distance);
+}
+
+node* findNearestNeighbor(node* root, point* searchpoint, int depth, node* best, double* bestDistance) {
+    // BASE CASE
+    if (root == NULL) 
+        {
+            return best;
+        }
+    // INTERMEDIATE/SMALL CALCULATION
+    int disc = depth % k;
+    node* next_Branch;
+    node* opp_Branch;
+
+    if (searchpoint->data[disc] < root->data[disc]) {
+        next_Branch = root->left;
+        opp_Branch = root->right;
+    } else {
+        next_Branch = root->right;
+        opp_Branch = root->left;
+    }
+
+    // RECURSIVE CALLING
+    best = findNearestNeighbor(next_Branch, searchpoint, depth + 1, best, bestDistance);
+
+    // Check if the current node is closer
+    double currentDistance = euclideanDistance(root->data, searchpoint->data);
+    if (currentDistance < *bestDistance && currentDistance!=0) {
+        *bestDistance = currentDistance;
+        best = root;
+    }
+
+    // Check the other side of the splitting plane
+    if ((*bestDistance) >= fabs(searchpoint->data[disc] - root->data[disc])) {
+        best = findNearestNeighbor(opp_Branch, searchpoint, depth + 1, best, bestDistance);
+    }
+
+    return best;
+}
 int count= 0;
 void print_tree(node * tree ) 
-{ 	
+{ 
 	if (tree)
 	{
+        
 		print_tree(tree->left);
-		for (int i = 0; i < k; i++)
+        printf("(");
+		for (int i = 0; i < k-1; i++)
 		{
 			printf("%d ", tree->data[i]);
 		}
-		printf("\n");
+        printf("%d", tree->data[k-1]);
+        printf(") ");
+		// printf("\n");
 		print_tree(tree->right);
 	}
+}
+bool arepointsEqual(int *point1, int *point2)
+{
+    for (int i = 0; i < k; i++)
+    {
+        if (point1[i] != point2[i])
+        {
+            return false;
+        }
+    }
+    return true;
+}
+
+bool search_node(node *root, int *Searchpoint, int depth)
+{
+    // BASE CASE
+    if (root == NULL)
+    {
+        return false;
+    }
+
+    // INTERMEDIATE/SMALL CALCULATION
+    int disc = depth % k;
+
+    if (arepointsEqual(root->data, Searchpoint))
+    {
+        return true;
+    }
+
+    // RECURSIVE CALLING
+    if (Searchpoint[disc] < root->data[disc])
+    {
+        return search_node(root->left, Searchpoint, depth + 1);
+    }
+    else
+    {
+        return search_node(root->right, Searchpoint, depth + 1);
+    }
 }
 
 int main()
@@ -63,10 +158,10 @@ int main()
     scanf("%d", &k);
 
     // Allocate memory for the array of points
-    int** point = (int**)malloc(n * sizeof(int*));
+    int** points = (int**)malloc(n * sizeof(int*));
     for (int i = 0; i < n; i++)
     {
-        point[i] = (int*)malloc(k * sizeof(int));
+        points[i] = (int*)malloc(k * sizeof(int));
     }
 
     // Scan the values of points
@@ -74,28 +169,47 @@ int main()
     {
         for (int j = 0; j < k; j++)
         {
-            scanf("%d", &point[i][j]);
+            scanf("%d", &points[i][j]);
         }
     }
 
     // Insert the points in the tree
     for (int i = 0; i < n; i++)
     {
-        root = insert_node(root, point[i], 0);
+        root = insert_node(root, points[i], 0);
     }
 
     // Don't forget to free the allocated memory for point arrays.
+    printf("The inorder traversal of kd tree is: \n");
 	print_tree(root);
-	// print("%d",root->data[i]))
-	for(int i = 0; i < k; i++)
-	{
-		printf("%d",root->data[i]);
-	}
+    // Define a search point
+    point searchpoint;
+    searchpoint.data = (int*)malloc(k * sizeof(int));
+        printf("\nEnter search point: ");
+
+    for (int i = 0; i < k; i++) {
+        // printf("Enter search point, dimension %d: ", i);
+        scanf("%d", &searchpoint.data[i]);
+    }
+
+    // Initialize variables for the nearest neighbor search
+    double bestDistance = DBL_MAX;
+    node* nearest = findNearestNeighbor(root, &searchpoint, 0, NULL, &bestDistance);
+    // Print the nearest neighbor
+    printf("Nearest Neighbor: [");
+    for (int i = 0; i < k; i++) {
+        printf("%d", nearest->data[i]);
+        if (i < k - 1) {
+            printf(", ");
+        }
+    }
+    printf("]\n");
+
     for (int i = 0; i < n; i++)
     {
-        free(point[i]);
+        free(points[i]);
     }
-    free(point);
+    free(points);
 
     return 0;
 }
