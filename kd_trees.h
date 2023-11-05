@@ -4,37 +4,39 @@
 #include<limits.h>
 #include <math.h>
 #include <float.h>
-int k ;
+int k ; // dimension of K-D tree
 typedef struct Node
 {
-    int* data ;
+    int* data ; // data stored according to dimension in array
     struct Node* left;
     struct Node* right;
 } node;
 
+// Function to create or add new node in the tree 
 node* insert_node(node* root, int* point, int depth)
 {
     node* newnode;
-    newnode = (node*)malloc(sizeof(node));
-	newnode->data = (int*)malloc(k * sizeof(int));
+    newnode = (node*)malloc(sizeof(node));  // Allocate memory dynamically to new node
+	newnode->data = (int*)malloc(k * sizeof(int)); // Dynamically allocate memory to data array according to dimension
     for (int i = 0; i < k; i++)
     {
         newnode->data[i] = point[i];
     }
-    if (root == NULL)
-    {   root = newnode ;
+    if (root == NULL)  // Tree is empty...
+    {   root = newnode ; // first node inserted in the tree
         newnode->left = NULL;
         newnode->right = NULL;
     }
     else
     {
-        int disc = depth % k;
+        int disc = depth % k; // calculate the current dimension of comparison
 
-        if (point[disc] < root->data[disc])
+	// compare the newely inserted node with root node
+        if (point[disc] < root->data[disc]) // If value of newnode is less than root node insert node in left subtree
         {
             root->left = insert_node(root->left, point, depth + 1);
         }
-        else
+        else  // insert in right subtree
         {
             root->right = insert_node(root->right, point, depth + 1);
         }
@@ -54,9 +56,9 @@ double euclideanDistance(int* point1, int* point2) {
     }
     return sqrt(distance);
 }
-
+// function to calculate NearestNeighbor
 node* findNearestNeighbor(node* root, point* searchpoint, int depth, node* best, double* bestDistance) {
-    // BASE CASE
+    // Base Case
     if (root == NULL) 
         {
             return best;
